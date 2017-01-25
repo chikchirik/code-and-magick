@@ -1,61 +1,47 @@
 'use strict';
 
 window.renderStatistics = function (ctx, names, times) {
-  // Начальные координаты
-  var x = 100;
-  var y = 10;
-  // Шаг смещения
-  var offset = 10;
+  drawCloud(ctx, 100, 10, 420, 270);
+  drawText(ctx, 150, 30, 'Ура вы победили!');
+  drawText(ctx, 150, 50, 'Список результатов:');
+  drawChart(ctx, 150, 90, names, times, 150, 40, 50);
+};
 
-  // Размер облака
-  var cloud = {'w': 420, 'h': 270};
-
-  // Рисуем тень и облако
+function drawCloud(ctx, x, y, width, height) {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.fillRect(x + offset, y + offset, cloud['w'], cloud['h']);
+  ctx.fillRect(x + 10, y + 10, width, height);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-  ctx.fillRect(x, y, cloud['w'], cloud['h']);
+  ctx.fillRect(x, y, width, height);
+}
 
-  // Добавляем надписи
+function drawText(ctx, x, y, text) {
   ctx.fillStyle = 'rgba(0, 0, 0, 1)';
   ctx.font = 'normal 16px PT Mono';
-  ctx.fillText('Ура вы победили!', x + offset * 5, y + offset * 2);
-  ctx.fillText('Список результатов:', x + offset * 5, y + offset * 4);
+  ctx.fillText(text, x, y);
+}
 
-  // Координаты гистограммы
-  var x1 = x + offset * 5;
-  var y1 = y + offset * 8;
-
-
-  // Параметры гистограммы
-  var hmax = 150;
-  var w = 40;
-  var l = 50;
-
-  // Цвет столбца
+function drawChart(ctx, x, y, names, times, height, barWidth, offset) {
   var color = function (name) {
-    return name === 'Вы' ? 'rgba(255, 0, 0, 1)' : 'rgba(0, 0, 255,' + Math.random() + ')';
+    return name === 'Вы' ? 'rgba(255, 0, 0, 1)' : 'rgb(0, 0, ' + parseInt(255 * Math.random(), 10) + ')';
+  };
+  var maxTimes = Math.max.apply(null, times);
+  var barHeight = function (time) {
+    return (time * height) / maxTimes;
   };
 
-  var i = 0;
-  while (names[i]) {
-    // Расчет высоты столбца
-    var h = (times[i] * hmax) / Math.max.apply(null, times);
+  for (var i = 0; i < names.length; i++) {
+    var xBar = x + i * (barWidth + offset);
+    var yBar = y + height - barHeight(times[i]);
 
     // Рисуем кол-во очков
-    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-    ctx.font = 'normal 16px PT Mono';
-    ctx.fillText((~~times[i]).toString(), x1 + i * (w + l), y1 + hmax - h - offset);
+    drawText(ctx, xBar, yBar - 10, parseInt(times[i], 10));
 
     // Рисуем столбец
     ctx.fillStyle = color(names[i]);
-    ctx.fillRect(x1 + i * (w + l), y1 + hmax - h, w, h);
+    ctx.fillRect(xBar, yBar, barWidth, barHeight(times[i]));
 
     // Рисуем имя игрока
-    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-    ctx.fillText(names[i], x1 + i * (w + l), x + hmax + offset);
-
-    i++;
+    drawText(ctx, xBar, y + height + 20, names[i]);
   }
-};
+}
