@@ -1,34 +1,34 @@
 'use strict';
 
-var setup = document.querySelector('.setup');
+var LINKS = {};
 var randColor = function (colors) {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-function eventOpen(btnClass) {
-  document.querySelector(btnClass).addEventListener('click', function () {
-    setup.classList.remove('invisible');
+function getLink(selector) {
+  return selector in LINKS ? LINKS[selector] : (LINKS[selector] = document.querySelector(selector));
+}
+
+function eventOpen(btnClass, windowClass) {
+  getLink(btnClass).addEventListener('click', function () {
+    getLink(windowClass).classList.remove('invisible');
   });
 }
 
-function eventClose(btnClass) {
-  document.querySelector(btnClass).addEventListener('click', function () {
-    setup.classList.add('invisible');
+function eventClose(btnClass, windowClass) {
+  getLink(btnClass).addEventListener('click', function () {
+    getLink(windowClass).classList.add('invisible');
   });
 }
 
 function eventChangeColor(id, colors, method) {
-  document.querySelector(id).addEventListener('click', function () {
-    if (method === 'fill') {
-      document.querySelector(id).style.fill = randColor(colors);
-    } else if (method === 'backgroundColor') {
-      document.querySelector(id).style.backgroundColor = randColor(colors);
-    }
+  getLink(id).addEventListener('click', function () {
+    getLink(id).style[method] = randColor(colors);
   });
 }
 
-eventOpen('.setup-open');
-eventClose('.setup-close');
+eventOpen('.setup-open', '.setup');
+eventClose('.setup-close', '.setup');
 
 eventChangeColor('#wizard-coat', ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'], 'fill');
 eventChangeColor('#wizard-eyes', ['black', 'red', 'blue', 'yellow', 'green'], 'fill');
