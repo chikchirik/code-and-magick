@@ -1,34 +1,91 @@
 'use strict';
 
-var LINKS = {};
-var randColor = function (colors) {
-  return colors[Math.floor(Math.random() * colors.length)];
+/* SETUP */
+var setupOpen = document.querySelector('.setup-open');
+var setupOverlay = document.querySelector('.overlay');
+var setupClose = setupOverlay.querySelector('.setup-close');
+var setupSubmit = setupOverlay.querySelector('.setup-submit');
+
+var ENTER_KEY_CODE = 13;
+var ESCAPE_KEY_CODE = 27;
+
+var isActivateEvent = function (event) {
+  return event.keyCode && event.keyCode === ENTER_KEY_CODE;
 };
 
-function getLink(selector) {
-  return selector in LINKS ? LINKS[selector] : (LINKS[selector] = document.querySelector(selector));
+var setupKeydownHandler = function (event) {
+  if (event.keyCode === ESCAPE_KEY_CODE) {
+    setupOverlay.classList.add('invisible');
+  }
+};
+
+var hideSetupHandler = function (event) {
+  hideSetupElement();
+  toggleButton(event.target);
+};
+
+var showSetupHandler = function (event) {
+  showSetupElement();
+  toggleButton(event.target);
+};
+
+function toggleButton(element) {
+  var pressed = (element.getAttribute('aria-pressed') === 'true');
+  element.setAttribute('aria-pressed', !pressed);
 }
 
-function eventOpen(btnClass, windowClass) {
-  getLink(btnClass).addEventListener('click', function () {
-    getLink(windowClass).classList.remove('invisible');
-  });
+var showSetupElement = function () {
+  setupOverlay.classList.remove('invisible');
+  document.addEventListener('keydown', setupKeydownHandler);
+};
+
+var hideSetupElement = function () {
+  setupOverlay.classList.add('invisible');
+  document.removeEventListener('keydown', setupKeydownHandler);
+};
+
+function setAttributes(element, attributes) {
+  for (var key in attributes) {
+    if (attributes.hasOwnProperty(key)) {
+      element.setAttribute(key, attributes[key]);
+    }
+  }
 }
 
-function eventClose(btnClass, windowClass) {
-  getLink(btnClass).addEventListener('click', function () {
-    getLink(windowClass).classList.add('invisible');
-  });
-}
+setAttributes(setupOverlay.querySelector('.setup-user-name'), {'maxlength': 50, 'required': ''});
+setAttributes(setupOverlay, {'role': 'dialog'});
+setAttributes(setupOpen.querySelector('.setup-open-icon'), {'role': 'button', 'aria-pressed': 'false', 'tabindex': '1'});
+setAttributes(setupClose, {'role': 'button', 'aria-pressed': 'false', 'tabindex': '2'});
+
+setupOpen.addEventListener('click', showSetupHandler);
+setupOpen.addEventListener('keydown', function (event) {
+  if (isActivateEvent(event)) {
+    showSetupHandler(event);
+  }
+});
+
+setupClose.addEventListener('click', hideSetupHandler);
+setupSubmit.addEventListener('click', hideSetupHandler);
+setupClose.addEventListener('keydown', function (event) {
+  if (isActivateEvent(event)) {
+    hideSetupHandler(event);
+  }
+});
+
+/* WIZARD */
+var currentNumberColor = 0;
+var nextColor = function (colors) {
+  if (++currentNumberColor > colors.length) {
+    currentNumberColor = 0;
+  }
+  return colors[currentNumberColor];
+};
 
 function eventChangeColor(id, colors, method) {
-  getLink(id).addEventListener('click', function () {
-    getLink(id).style[method] = randColor(colors);
+  document.querySelector(id).addEventListener('click', function (event) {
+    event.currentTarget.style[method] = nextColor(colors);
   });
 }
-
-eventOpen('.setup-open', '.setup');
-eventClose('.setup-close', '.setup');
 
 eventChangeColor('#wizard-coat', ['rgb(101, 137, 164)', 'rgb(241, 43, 107)', 'rgb(146, 100, 161)', 'rgb(56, 159, 117)', 'rgb(215, 210, 55)', 'rgb(0, 0, 0)'], 'fill');
 eventChangeColor('#wizard-eyes', ['black', 'red', 'blue', 'yellow', 'green'], 'fill');
