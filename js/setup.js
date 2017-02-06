@@ -75,10 +75,7 @@ setupClose.addEventListener('keydown', function (event) {
 /* WIZARD */
 var currentNumberColor = 0;
 var nextColor = function (colors) {
-  if (++currentNumberColor > colors.length) {
-    currentNumberColor = 0;
-  }
-  return colors[currentNumberColor];
+  return colors[++currentNumberColor % colors.length];
 };
 
 function eventChangeColor(id, colors, method) {
