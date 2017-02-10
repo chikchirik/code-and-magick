@@ -16,31 +16,39 @@ var isActivateEvent = function (event) {
 var setupKeydownHandler = function (event) {
   if (event.keyCode === ESCAPE_KEY_CODE) {
     setupOverlay.classList.add('invisible');
+    setupOverlay.setAttribute('aria-hidden', 'true');
   }
 };
 
 var hideSetupHandler = function (event) {
   hideSetupElement();
-  toggleButton(event.target);
+  setPressedStatus(event.target);
 };
 
 var showSetupHandler = function (event) {
   showSetupElement();
-  toggleButton(event.target);
+  setPressedStatus(event.target);
 };
 
-function toggleButton(element) {
-  var pressed = (element.getAttribute('aria-pressed') === 'true');
-  element.setAttribute('aria-pressed', !pressed);
+var currentPressedElement = null;
+
+function setPressedStatus(element) {
+  if (currentPressedElement) {
+    currentPressedElement.setAttribute('aria-pressed', 'false');
+  }
+  currentPressedElement = element;
+  currentPressedElement.setAttribute('aria-pressed', 'true');
 }
 
 var showSetupElement = function () {
   setupOverlay.classList.remove('invisible');
+  setupOverlay.setAttribute('aria-hidden', 'false');
   document.addEventListener('keydown', setupKeydownHandler);
 };
 
 var hideSetupElement = function () {
   setupOverlay.classList.add('invisible');
+  setupOverlay.setAttribute('aria-hidden', 'true');
   document.removeEventListener('keydown', setupKeydownHandler);
 };
 
@@ -53,7 +61,7 @@ function setAttributes(element, attributes) {
 }
 
 setAttributes(setupOverlay.querySelector('.setup-user-name'), {'maxlength': 50, 'required': ''});
-setAttributes(setupOverlay, {'role': 'dialog'});
+setAttributes(setupOverlay, {'role': 'dialog', 'aria-hidden': 'true'});
 setAttributes(setupOpen.querySelector('.setup-open-icon'), {'role': 'button', 'aria-pressed': 'false', 'tabindex': '1'});
 setAttributes(setupClose, {'role': 'button', 'aria-pressed': 'false', 'tabindex': '2'});
 
